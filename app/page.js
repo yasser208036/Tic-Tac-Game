@@ -1,95 +1,76 @@
-import Image from "next/image";
-import styles from "./page.module.css";
-
+"use client";
+import { useEffect, useState } from "react";
+import "./page.module.css";
+import Cell from "./components/Cell";
+const winningCombos = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6],
+];
 export default function Home() {
+  const [cells, setCells] = useState(["", "", "", "", "", "", "", "", ""]);
+  const [go, setGo] = useState("circle");
+  const [winMassage, setWinMassage] = useState("");
+  const [playAgain, setplayAgain] = useState(false);
+  useEffect(() => {
+    winningCombos.forEach((combo) => {
+      const circleWins = combo.every((cell) => cells[cell] === "circle");
+      const crossWins = combo.every((cell) => cells[cell] === "cross");
+
+      if (circleWins) {
+        setWinMassage("Circle Wins!");
+        setplayAgain(true);
+      } else if (crossWins) {
+        setWinMassage("Cross Wins!");
+        setplayAgain(true);
+      }
+    });
+    if (cells.every((cell) => cell != "") && !winMassage) {
+      setWinMassage("Draw!");
+      setplayAgain(true);
+    }
+  }, [cells, winMassage]);
+  const handelPlayAgain = () => {
+    setCells(["", "", "", "", "", "", "", "", ""]);
+    setWinMassage("");
+    setGo("circle");
+    setplayAgain(false);
+  };
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
+    <div className="container">
+      <div className="gamebord">
+        {cells.map((cell, index) => {
+          return (
+            <Cell
+              id={index}
+              cells={cells}
+              setCells={setCells}
+              go={go}
+              setGo={setGo}
+              key={index}
+              cell={cell}
+              winMassage={winMassage}
+              setplayAgain={setplayAgain}
             />
-          </a>
-        </div>
+          );
+        })}
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+      <p>{winMassage}</p>
+      {!winMassage && (
+        <p style={{ fontSize: "25px" }}>{`its now ${go} turn!`}</p>
+      )}
+      <button
+        style={playAgain ? { display: "block" } : { display: "none" }}
+        onClick={handelPlayAgain}
+        className="playAgain"
+      >
+        Play Again!
+      </button>
+    </div>
   );
 }
